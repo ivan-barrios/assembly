@@ -1,0 +1,16 @@
+ORG 1000H
+INICIO DB 01H
+
+ORG 2000H
+MOV BX, OFFSET INICIO
+MOV AL, 1               ;Caracter por caracter
+
+MOV CL, 01H
+
+LOOP: INT 7     ;Imprime lo que tiene BX
+INC CL
+MOV [BX], CL
+CMP CL, 255
+JNZ LOOP
+INT 0
+END

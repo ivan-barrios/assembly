@@ -1,0 +1,13 @@
+ORG 1000H
+valorA DB 4
+valorB DB 2
+ORG 2000H
+MOV AL, valorA
+MOV BL, valorB
+CMP AL, BL
+JS cumplio
+MOV CL, BL
+JMP sigue
+cumplio: MOV CL, AL
+sigue: HLT
+END

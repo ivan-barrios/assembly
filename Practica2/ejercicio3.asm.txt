@@ -1,0 +1,19 @@
+ORG 1000H
+DIM DB 26H
+ORG 2000H
+
+
+MOV AL, 1               ;Cant Elementos a imprimir
+MOV CL, 41H             ;A
+MOV CH, 61H             ;a
+MOV BX, OFFSET DIM      ;Direccion de impresion
+LOOP: MOV [BX], CL 
+INT 7
+INC CL
+MOV [BX], CH
+INT 7
+INC CH
+CMP CH, 7AH
+JNZ LOOP
+INT 0
+END
