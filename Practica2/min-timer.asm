@@ -1,0 +1,65 @@
+;Registros del timer
+TIMER EQU 10H
+;Registros del PIC
+PIC EQU 20H
+EOI EQU 20H
+N_CLK EQU 10
+ORG 40
+IP_CLK DW RUT_CLK
+ORG 1000H
+MIN DB 30H
+MIN1 DB 30H
+SEP DB ":"
+SEG DB 30H ;"0"
+SEG1 DB 30H ;"0"
+SEP2 DB " "
+FIN DB ?
+
+ORG 3000H
+
+RUT_CLK: PUSH AX
+INC SEG1
+CMP SEG1, 3AH ;Compara con ":" que es el proximo a "9"
+JNZ RESET
+MOV SEG1, 30H
+INC SEG
+CMP SEG, 36H ;compara con "6" para que no se pase de 60
+JNZ RESET
+MOV SEG, 30H
+;Incrementa minutos si llego a 60 segundos
+INC MIN1
+CMP MIN1, 3AH
+JNZ RESET
+MOV MIN1, 30H
+INC MIN
+CMP MIN, 36H
+JNZ RESET
+MOV MIN, 30H
+
+RESET:CMP SEG1, 30H
+JNZ NO_MOSTRAR
+INT 7
+NO_MOSTRAR: MOV AL, 0
+;a registro CONT le manda 0 cuando ya realizo interrupcion
+OUT TIMER, AL 
+MOV AL, EOI
+OUT PIC, AL
+POP AX
+IRET
+
+ORG 2000H
+CLI
+MOV AL, 0FDH
+OUT PIC+1, AL ; PIC: registro IMR
+MOV AL, N_CLK
+OUT PIC+5, AL ; PIC: registro INT1
+MOV AL, 1
+OUT TIMER+1, AL ; TIMER: registro COMP
+MOV AL, 0
+OUT TIMER, AL ; TIMER: registro CONT
+;En seg esta el primer digito y en seg1 el segundo digito
+MOV BX, OFFSET MIN
+MOV AL, OFFSET FIN-OFFSET MIN
+STI
+LAZO: JMP LAZO
+END
