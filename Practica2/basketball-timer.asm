@@ -1,0 +1,84 @@
+PIC EQU 20H
+EOI EQU 20H
+TIMER EQU 10H
+N_F10 EQU 9
+N_CLK EQU 10
+
+ORG 36
+IP_F10 DW RUT_F10
+
+ORG 40
+IP_CLK DW RUT_CLK
+
+ORG 1000H
+SEG1 DB 30H
+SEG2 DB 30H
+TEXT1 DB " "
+FIN DB ?
+
+ORG 3000H
+RUT_F10: PUSH AX
+IN AL, PIC+1
+CMP AL, 0FEH                ;Esta habilitado el Clock?
+JZ HABILITAR                ;Habilito si estaba DEShabilitado
+MOV AL, 0FEH
+OUT PIC+1, AL               ;Deshabilito si ya estaba habilitado
+JMP FINF10                  ;Termino
+
+HABILITAR: MOV AL, 0FCH
+OUT PIC+1, AL
+
+FINF10: MOV AL, EOI
+OUT EOI, AL
+
+POP AX
+IRET
+
+
+RUT_CLK: PUSH AX
+INC SEG2
+CMP SEG2, 3AH
+JNZ RESET
+MOV SEG2, 30H
+INC SEG1
+CMP SEG1, 36H
+JNZ RESET
+MOV SEG1, 30H
+
+RESET: INT 7
+CMP SEG1, 33H        ;Llego a 30 segundos?
+JNZ SEGUIR           ;Si llego, cortamos
+
+MOV SEG1, 30H
+MOV AL, 0FEH
+OUT PIC+1, AL            ;Deshabilito Timer
+
+
+SEGUIR: MOV AL, 0
+OUT TIMER, AL        ;Contador en 0
+MOV AL, EOI
+OUT PIC, AL
+
+POP AX
+IRET
+
+
+
+ORG 2000H
+CLI
+MOV AL, 0FCH
+OUT PIC+1, AL  ; PIC: registro IMR
+MOV AL, N_CLK
+OUT PIC+5, AL  ; PIC: registro INT1
+MOV AL, N_F10
+OUT PIC+4, AL
+MOV AL, 1
+OUT TIMER+1, AL ; TIMER: registro COMP
+MOV AL, 0
+OUT TIMER, AL    ;TIMER: registro CONT
+MOV BX, OFFSET SEG1
+MOV AL, OFFSET FIN-OFFSET SEG1
+STI
+LAZO: JMP LAZO
+INT 0
+END
