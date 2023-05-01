@@ -8,7 +8,7 @@ ORG 1000H
 ;PIO PARA IMPRESORA
 ORG 3000H
     INI_IMP: MOV AL, 0FDH
-    OUT PIO+2, AL ; BUSY de salida y STROBE de entrada (CA)
+    OUT PIO+2, AL ; BUSY de entrada y STROBE de salida (CA)
     MOV AL, 0
     OUT PIO+3, AL ; DATOS de salida (CB)
     IN AL, PIO
