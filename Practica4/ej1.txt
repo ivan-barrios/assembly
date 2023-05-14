@@ -1,0 +1,8 @@
+1) Muchas instrucciones comunes en procesadores con arquitectura CISC no forman parte del repertorio de instrucciones del
+MIPS64, pero pueden implementarse haciendo uso de una única instrucción. Evaluar las siguientes instrucciones, indicar qué
+tarea realizan y cuál sería su equivalente en lenguaje assembly del x86.
+a) dadd r1, r2, r0 //Suma r2 con r0 y lo guarda en r1.
+b) daddi r3, r0, 5 //Suma r0 con 5(Inmediato) y lo guarda en r3
+c) dsub r4, r4, r4 //resta r4 con r4 y lo guarda en r4 (0) 
+d) daddi r5, r5, -1  //suma r5 con -1 y lo guarda en r5
+e) xori r6, r6, 0xffffffffffffffff  //Hace un (r6 XOR 0xffffffffffffffff) y lo guarda en r6.
