@@ -1,0 +1,122 @@
+1) CPI = 9 cycles / 4 instrucciones
+
+2) daddi $sp, $sp, -8
+   sd $t6, 0(sp) 
+
+3) XX = 46
+Teniendo en cuenta de que le erra 2 veces
+(Cuando entra y cuando sale)
+   Cantidad = 46 - 2 = 44 veces 
+
+4) 
+.data
+msj: .asciiz "El Resultado es: "
+CONTROL: .word32 0x10000
+DATA: .word32 0x10008
+Valor: .word 9.36
+.code
+lwu $s6, CONTROL($0)
+lwu $s7, DATA($0)
+
+daddi $t0, $0, 8
+sd $t0, 0($s6)
+ld f1, 0($s7)
+
+ld f2, Valor($0) ;Guardo Valor en f2
+
+c.le.d f1, f2
+
+bc1f esMayor
+
+;Calcular cuando f1 es menor o igual
+sub.d f3, f2, f1
+div.d f3, f3, f1
+j listo
+
+;Calcular cuando f1 es mayor
+esMayor: sub.d f3, f1, f2
+mul.d f3, f1, f3
+
+listo: daddi $t0, $0, msj
+sd $t0, 0($s7)
+daddi $t0, $0, 4
+sd $t0, 0($s6)
+
+sd f3, 0($s7)
+daddi $t0, $0, 3
+sd $t0, 0($s6)
+
+halt
+
+5) $t1 --> dir de cadena (Se suma 1 en cada iteracion)
+   $t2 --> 0 (Se suma 1 en cada iteracion)
+   $t3 --> caracter de ejemplo
+   t2 va a ser la cantidad de caracteres + el 0 -> 8
+
+6) 
+.data
+tabla_1: .word 21, 12, 5, 16, 8, 39, 10, 41, 4, 33
+tabla_2: .word 32, 24, 15, 32, 17, 28, 11, 20, 44, 21
+CONTROL: .word32 0x10000
+DATA: .word32 0x10008
+color1: .byte 255, 0, 0, 0
+color2: .byte 0, 255, 0, 0
+cX1: .byte 0
+cY1: .byte 0
+cX2: .byte 0
+cY2: .byte 0
+
+.code
+daddi $a0, $0, tabla_1
+daddi $a1, $0, 10
+jal MIN_MAX
+sb v1, cX1($0)
+sb v0, cY2($0)
+
+daddi $a0, $0, tabla_2
+daddi $a1, $0, 10
+jal MIN_MAX
+sb $v0, cY1($0)
+sb $v1, cX2($0)
+
+sd $s6, CONTROL($0)
+sd $s7, DATA($0)
+
+daddi $t3, $0, 5
+
+lbu $t0, cX1($0)
+sb $t0, 5($s7)
+lbu $t1, cY1($0)
+sb $t1, 4($s7)
+lwu $t2, color($0)
+sw $t2, 0($s7)
+sd $t3, 0($s6)
+
+lbu $t0, cX2($0)
+sb $t0, 5($s7)
+lbu $t1, cY2($0)
+sb $t1, 4($s7)
+lwu $t2, color($0)
+sw $t2, 0($s7)
+sd $t3, 0($s6)
+
+
+halt
+
+;   supongo $a0 = direccion de comienzo
+;   supongo $a1 = cant de elementos
+;   $v0 -> maximo
+;   $v1 -> minimo
+
+MIN_MAX: daddi $v0, $0, -999
+daddi $v1, $0, 999
+loop: sd $t0, 0($a0) ; $t0 = Elemento
+slt $t1, $t0, $v1 ; $t1 = 1 si ($t0 < $v1)
+beq $t1, $0 noMin 
+dadd $v1, $0, $t0
+noMin: slt $t2, $v0, $t0 ; $t2 = 1 si ($t0 > $v0)
+beq $t2, $0 noMax 
+dadd $v1, $0, $t0
+noMax: daddi $a1, $a1, -1
+bnez $a1, loop
+jr $ra
